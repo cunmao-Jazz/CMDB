@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+package course.cmdb.resource;
+option go_package="github.com/cunmao-Jazz/cmdb/apps/resource";
+
+import "github.com/infraboard/mcube/pb/page/page.proto";
+
+service Service {
+    rpc Search (SearchRequest) returns (ResourceSet);        
+}
+
+// 提供资源的云厂商
+enum Vendor {
+    ALIYUN = 0;
+    TENCENT = 1;
+    HUAWEI = 2;
+    VSPHERE = 3;
+    AMAZON = 4;
+}
+
+// 资源类型
+enum Type {
+    // 主机, 阿里云: Ecs, 腾讯云: cvm, AWS: Ec2
+    HOST = 0;
+    // 关系型数据库, MySQL
+    RDS = 1;
+    // 账单
+    BILL = 99;
+}
+
+message ResourceSet {
+    // @gotags: json:"items"
+    repeated Resource items = 1;
+    // @gotags: json:"total"
+    int64 total = 2;
+}
+
+message Resource {
+    // 资源元数据信息
+    // @gotags: json:"base"
+    Base base = 1;
+    // 资源信息
+    // @gotags: json:"information"
+    Information information = 2;
+    // 资源释放计划
+    // @gotags: json:"release_plan"
+    ReleasePlan release_plan = 3;
+}
+
+// 资源释放计划
+message ReleasePlan {
+    // 释放原因
+    // @gotags: json:"reason"
+    string reason = 1;
+    // 是否立即释放
+    // @gotags: json:"immediately"
+    bool immediately = 2;
+    // 计划时间
+    // @gotags: json:"plan_at"
+    int64 plan_at = 3;
+    // 执行时间
+    // @gotags: json:"exec_at"
+    int64 exec_at = 4;
+    // 释放前 提前几天通知, 过期后 云商会自动释放的也需要提前通知
+    // @gotags: json:"notice_before_days"
+    int64 notice_before_days = 5;
+    // 资源释放后, 什么时候销毁该数据
+    // @gotags: json:"destory_at"
+    int64 destory_at = 6;
+}
+
+message Base {
+    // 全局唯一Id, 直接使用个云商自己的Id
+    // @gotags: json:"id"
+    string id = 1;
+    // 同步时间
+    // @gotags: json:"sync_at"
+    int64 sync_at = 2;
+    // 用于同步的凭证ID
+    // @gotags: json:"secret_id"
+    string secret_id = 3;
+    // 厂商
+    // @gotags: json:"vendor"
+    Vendor vendor = 4;
+    // 资源类型
+    // @gotags: json:"resource_type"
+    Type resource_type = 5;
+    // 地域
+    // @gotags: json:"region"
+    string region = 6;
+    // 区域
+    // @gotags: json:"zone"
+    string zone = 7;
+    // 创建时间
+    // @gotags: json:"create_at"
+    int64  create_at = 8;
+    // 基础数据Hash
+    // @gotags: json:"resource_hash"
+    string resource_hash = 10;
+    // 描述数据Hash
+    // @gotags: json:"describe_hash"
+    string describe_hash = 11;
+    // Resource信息释放有变化
+    // @gotags: json:"resource_hash_changed"
+    bool resource_hash_changed = 12;
+    // Describe信息释放有变化
+    // @gotags: json:"describe_hash_changed"
+    bool describe_hash_changed = 13;
+}
+
+message Information {
+    // 过期时间
+    // @gotags: json:"expire_at"
+    int64 expire_at = 1;
+    // 种类
+    // @gotags: json:"category"
+    string category = 2;
+    // 规格
+    // @gotags: json:"type"
+    string type = 3;
+    // 名称
+    // @gotags: json:"name"
+    string name = 4;
+    // 描述
+    // @gotags: json:"description"
+    string description = 5;
+    // 服务商中的状态
+    // @gotags: json:"status"
+    string status = 6;
+    // 标签
+    // @gotags: json:"tags"
+    map<string,string> tags = 7;
+    // 更新时间
+    // @gotags: json:"update_at"
+    int64 update_at = 8;
+    // 同步的账号
+    // @gotags: json:"sync_account"
+    string sync_account = 9;
+    // 公网IP
+    // @gotags: json:"public_ip"
+    repeated string public_ip = 10;
+    // 内网IP
+    // @gotags: json:"private_ip"
+    repeated string private_ip = 11;
+    // 实例付费方式
+    // @gotags: json:"pay_type"
+    string pay_type = 12;
+}
+
+message SearchRequest {
+    // 分页参数
+    // @gotags: json:"page"
+    infraboard.mcube.page.PageRequest page = 1;
+    // 云商厂商
+    optional Vendor vendor = 3;
+    // 资源类型
+    optional Type type = 4;
+    // 关键字, IP,名称,instance_id
+    string keywords = 5;
+}

@@ -19,7 +19,7 @@ client_secret = "wenqirui"
 
 
 [mysql]
-host = "192.168.83.147"
+host = "192.168.83.148"
 port = "3306"
 database = "cmdb"
 username = "root"
